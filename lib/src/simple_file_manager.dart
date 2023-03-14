@@ -3,7 +3,6 @@ part of simple_file_manager;
 class SimpleFileManager extends StatefulWidget {
   final List<FileModel> filesList;
   final String uploadButton;
-
   // final String downloadButton;
   final String placeholderFromAssets;
   final void Function(String? parentID)? onCreateFolderClicked;
@@ -23,8 +22,7 @@ class SimpleFileManager extends StatefulWidget {
       this.onFolderClicked,
       this.onFileClicked,
       this.onItemDownloadClicked,
-      this.onBack,
-      this.onUpdate})
+      this.onBack, this.onUpdate})
       : super(key: key);
 
   @override
@@ -34,7 +32,6 @@ class SimpleFileManager extends StatefulWidget {
 class _SimpleFileManagerState extends State<SimpleFileManager> {
   List<String>? _parentIds;
   Future<List<FileModel>>? futureFiles;
-
   @override
   void initState() {
     super.initState();
@@ -72,8 +69,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                   ElevatedButton(
                       onPressed: () {
                         widget.onUpdate?.call(_parentIds?.last);
-                      },
-                      child: Text(widget.uploadButton)),
+                      }, child: Text(widget.uploadButton)),
                   const SizedBox(width: 20),
                   // ElevatedButton(
                   //     onPressed: (){},
@@ -123,7 +119,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                           _parentIds?.add(e.id!);
                           print(_parentIds);
                           futureFiles = widget.onFolderClicked?.call(e);
-                          setState(() {});
+                          setState((){});
                         }
                       },
                       child: Column(
@@ -215,10 +211,10 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                             await Clipboard.setData(
                                                 ClipboardData(text: e.url));
                                             ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text('URL Copied'),
-                                              backgroundColor: Colors.green,
-                                            ));
+                                                .showSnackBar(SnackBar
+                                              (content: Text('URL Copied'),
+                                              backgroundColor: Colors.green,)
+                                            );
                                           },
                                           value: 'Copy',
                                           child: Row(
