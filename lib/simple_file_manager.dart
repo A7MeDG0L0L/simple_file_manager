@@ -8,7 +8,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/src/material/dropdown.dart';
 import 'package:flowder/flowder.dart';
 import 'package:flutter/services.dart';
-
+import 'package:file_picker/file_picker.dart';
 
 part 'src/simple_file_manager.dart';
 part 'src/file_model.dart';

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:simple_file_manager/simple_file_manager.dart';
 import 'package:http/http.dart' as http;
 
@@ -66,18 +68,37 @@ class _MyHomePageState extends State<MyHomePage> {
     return List<FileModel>.from(json['data'].map((e) => FileModel.fromJson(e)));
   }
 
-  Future uploadFile(String folderId) async {
-    var response = http.MultipartRequest(
+  Future<bool> uploadFile(
+      String? folderId, Uint8List pickedFile, String? pickedFileName) async {
+    var request = http.MultipartRequest(
         "POST",
         Uri.parse('https://kafaratplus-api.tecfy'
-            '.co/api/general/storage/file/admin')
+            '.co/api/general/storage/folder/file/admin')
         //     ,headers: {'Authorization': 'Bea'
         //     'rer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODAxMzQyOSwiZXhwIjoxNjc4MDk5ODI5fQ.N9ZwhteDr8ISX56VYpvUOW4_QG1G70mBL98Yu0eS5jg'},
         // body:
         );
-    response.headers['Authorization'] = 'Bea'
-        'rer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
-        '.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODAxMzQyOSwiZXhwIjoxNjc4MDk5ODI5fQ.N9ZwhteDr8ISX56VYpvUOW4_QG1G70mBL98Yu0eS5jg';
+    request.headers['Authorization'] = 'Bea'
+        'rer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODg3NzU2NCwiZXhwIjoxNjc4OTYzOTY0fQ.ICcIYzGcYNC7NoHLyccmNsSkYJsVdVxN6qRMnLo_ceo';
+
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      pickedFile,
+      filename: pickedFileName,
+      contentType: MediaType("image", pickedFileName!.split('.').last),
+    ));
+    request.fields['name'] = pickedFileName;
+    request.headers["Content-Type"] = "image/jpg";
+    request.fields['path'] = 'img';
+    request.fields['type'] = 'File';
+
+    var response = await request.send();
+    var data = await response.stream.toBytes();
+    String dataString = utf8.decode(data);
+    var r = json.decode(dataString);
+    print(response.statusCode);
+    print(r);
+    return response.statusCode == 200 ? true : false;
   }
 
   @override
@@ -95,12 +116,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 filesList: _myData!,
                 uploadButton: 'Upload',
                 // downloadButton: 'Download',
-                onUpdate: (String? parentId) {},
+                onUpload: (String? parentId, pickedFile,
+                    String? pickedFileName) async {
+                  print(pickedFile);
+                  print(pickedFileName);
+                  print(parentId);
+                  return await uploadFile(
+                      parentId, pickedFile!, pickedFileName);
+                },
                 onCreateFolderClicked: (String? parentID) {},
                 onBack: (String? value) async {
                   print(value);
                   return await getFilesData(value);
-                  setState(() {});
                 },
                 onFolderClicked: (value) async {
                   return await getFilesData(value!.id);

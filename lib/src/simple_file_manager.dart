@@ -12,7 +12,13 @@ class SimpleFileManager extends StatefulWidget {
   final void Function(FileModel? fileModel)? onFileClicked;
   final void Function(FileModel? fileModel)? onItemDownloadClicked;
   final Future<List<FileModel>?>? Function(String? previousParentId)? onBack;
-  final void Function(String? previousParentId)? onUpdate;
+  final Future<bool> Function(String? previousParentId, Uint8List? pickedFile,
+      String? pickedFilePath)? onUpload;
+
+  /// if endpoint requires token to download photo
+  final String? accessToken;
+  final String? downloadText;
+  final String? copyURLText;
 
   const SimpleFileManager(
       {Key? key,
@@ -24,7 +30,11 @@ class SimpleFileManager extends StatefulWidget {
       this.onFolderClicked,
       this.onFileClicked,
       this.onItemDownloadClicked,
-      this.onBack, this.onUpdate})
+      this.onBack,
+      this.onUpload,
+      this.accessToken,
+      this.downloadText,
+      this.copyURLText})
       : super(key: key);
 
   @override
@@ -62,10 +72,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                         onPressed: !_loading
                             ? () async {
                                 if (_parentIds != null) {
-                                  // print(_parentIds);
-                                  // print(_parentIds!.length);
                                   _parentIds?.removeLast();
-                                  print(_parentIds?.isEmpty ?? false);
                                   _loading = true;
                                   setState(() {});
 
@@ -74,11 +81,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                               (_parentIds?.isEmpty ?? false)
                                           ? null
                                           : _parentIds!.last
-                                      // > 1
-                                      // ? _parentIds
-                                      //     ?.elementAt((_parentIds!.length - 2)) : null
                                       );
-                                  // _parentIds?.removeLast();
                                   setState(() {
                                     _loading = false;
                                   });
@@ -90,16 +93,54 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
 
                   ElevatedButton(
                       onPressed: !_loading
-                          ? () {
-                              widget.onUpdate?.call(_parentIds?.last);
+                          ? () async {
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: [
+                                        'xlsx',
+                                        'jpeg',
+                                        'jpg',
+                                        'png',
+                                        'gif'
+                                      ],
+                                      withData: true);
+                              _loading = true;
+                              setState(() {});
+                              bool? response = await widget.onUpload?.call(
+                                  _parentIds?.last,
+                                  result?.files.first.bytes != null
+                                      ? result!.files.first.bytes
+                                      : null,
+                                  result?.files.first.bytes != null
+                                      ? result!.files.first.name
+                                      : null);
+                              if (response ?? false) {
+                                _futureFiles?.add(FileModel(
+                                  name: result!.files.first.name,
+                                  type: 'File',
+                                  createdTime: DateTime.now(),
+                                  fileExtension:
+                                      result.files.first.name.split('.').last,
+                                ));
+                              }
+                              _loading = false;
+                              setState(() {});
                             }
                           : null,
-                      child: Text(widget.uploadButton)),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.upload),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(widget.uploadButton),
+                        ],
+                      )),
                   const SizedBox(width: 20),
                   // ElevatedButton(
                   //     onPressed: (){},
                   //     child:  Text(widget.downloadButton)),
-                  const SizedBox(width: 20),
                   ElevatedButton(
                       onPressed: !_loading
                           ? () async {
@@ -122,7 +163,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                 },
                               );
                               if (folderName != null && folderName != '') {
-                                print(folderName);
                                 _futureFiles?.add(FileModel(
                                     type: FileManagerTypes.Folder.name,
                                     name: folderName));
@@ -135,7 +175,15 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                               }
                             }
                           : null,
-                      child: const Text('Create Folder')),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.create_new_folder),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text('Create Folder'),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -152,7 +200,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                 if (e.type == FileManagerTypes.Folder.name) {
                                   _parentIds ??= [];
                                   _parentIds?.add(e.id!);
-                                  print(_parentIds);
                                   _loading = true;
                                   setState(() {});
                                   _futureFiles =
@@ -172,12 +219,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                             child: DropdownButton2(
                                               openWithLongPress: true,
                                               isExpanded: true,
-                                              onChanged: (v) {
-                                                print(v);
-                                              },
-                                              onMenuStateChange: (bool value) {
-                                                print(value);
-                                              },
+                                              onChanged: (v) {},
+                                              onMenuStateChange:
+                                                  (bool value) {},
                                               dropdownStyleData:
                                                   DropdownStyleData(
                                                 width: 160,
@@ -196,7 +240,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                               items: [
                                                 DropdownMenuItem(
                                                   onTap: () async {
-                                                    print(
+                                                    debugPrint(
                                                         'download button pressed');
                                                     WidgetsFlutterBinding
                                                         .ensureInitialized();
@@ -209,7 +253,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                               (current /
                                                                       total) *
                                                                   100;
-                                                          print(
+                                                          debugPrint(
                                                               'Downloading: $progress');
                                                         },
                                                         file: File(
@@ -217,25 +261,25 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                             '.${e.fileExtension}'),
                                                         progress:
                                                             ProgressImplementation(),
-                                                        onDone: () => print(
+                                                        onDone: () => debugPrint(
                                                             'Download done'),
                                                         deleteOnCancel: true,
                                                         accessToken:
-                                                            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODAxMzQyOSwiZXhwIjoxNjc4MDk5ODI5fQ.N9ZwhteDr8ISX56VYpvUOW4_QG1G70mBL98Yu0eS5jg',
+                                                            'Bearer ${widget.accessToken}',
                                                       );
 
                                                       final core = await Flowder
                                                           .download(e.url!,
                                                               downloaderUtils);
                                                     } catch (e, st) {
-                                                      print(e);
-                                                      print(st);
+                                                      debugPrint("$e");
+                                                      debugPrint("$st");
                                                     }
                                                   },
                                                   value: 'Download',
                                                   child: Row(
-                                                    children: const [
-                                                      Icon(
+                                                    children: [
+                                                      const Icon(
                                                         Icons.download,
                                                         color: Colors.white,
                                                         size: 22,
@@ -244,7 +288,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         width: 10,
                                                       ),
                                                       Text(
-                                                        'Download',
+                                                        widget.downloadText ??
+                                                            ''
+                                                                'Download',
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                         ),
@@ -269,8 +315,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                   },
                                                   value: 'Copy',
                                                   child: Row(
-                                                    children: const [
-                                                      Icon(
+                                                    children: [
+                                                      const Icon(
                                                         Icons.copy,
                                                         color: Colors.white,
                                                         size: 22,
@@ -279,7 +325,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         width: 10,
                                                       ),
                                                       Text(
-                                                        'Copy URL',
+                                                        widget.copyURLText ??
+                                                            'Copy URL',
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                         ),
@@ -288,11 +335,22 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                   ),
                                                 )
                                               ],
-                                              customButton: Image.network(
-                                                e.thumbnail!,
+                                              customButton:
+                                                  FadeInImage.assetNetwork(
+                                                imageErrorBuilder: (context,
+                                                    error, stackTrace) {
+                                                  return Image.asset(
+                                                      widget
+                                                          .placeholderFromAssets,
+                                                      width: 100,
+                                                      fit: BoxFit.fitHeight);
+                                                },
                                                 width: 100,
                                                 height: 100,
                                                 fit: BoxFit.fitHeight,
+                                                placeholder: widget
+                                                    .placeholderFromAssets,
+                                                image: e.thumbnail!,
                                               ),
                                             ),
                                           )
@@ -300,14 +358,21 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                             widget.placeholderFromAssets,
                                             width: 100,
                                             fit: BoxFit.fitHeight),
-                          Text(e.name ?? ''),
-                        ],
-                      ),
+                                  SizedBox(
+                                      width: 100,
+                                      child: Center(
+                                        child: Text(
+                                          e.name ?? '',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
                     ),
-                  );
-                }),
-              ],
-            ),
           ],
         ),
       ),
