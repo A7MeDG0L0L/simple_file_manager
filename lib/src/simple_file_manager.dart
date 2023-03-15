@@ -108,7 +108,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                               _loading = true;
                               setState(() {});
                               bool? response = await widget.onUpload?.call(
-                                  _parentIds?.last,
+                                  _parentIds == null || _parentIds!.length == 0
+                                      ? null
+                                      : _parentIds?.last,
                                   result?.files.first.bytes != null
                                       ? result!.files.first.bytes
                                       : null,
@@ -245,6 +247,10 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                     WidgetsFlutterBinding
                                                         .ensureInitialized();
                                                     try {
+                                                      Directory
+                                                          appDocDirectory =
+                                                          await getApplicationDocumentsDirectory();
+
                                                       final downloaderUtils =
                                                           DownloaderUtils(
                                                         progressCallback:
@@ -257,17 +263,30 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                               'Downloading: $progress');
                                                         },
                                                         file: File(
-                                                            'Downloads/${e.name}'
+                                                            '${appDocDirectory.path}/${e.name}'
                                                             '.${e.fileExtension}'),
                                                         progress:
                                                             ProgressImplementation(),
-                                                        onDone: () => debugPrint(
-                                                            'Download done'),
+                                                        onDone: () {
+                                                          debugPrint(
+                                                              'Download done');
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                                  const SnackBar(
+                                                            content: Text(
+                                                                'Download '
+                                                                'Completed'),
+                                                            backgroundColor:
+                                                                Colors.green,
+                                                          ));
+                                                        },
                                                         deleteOnCancel: true,
                                                         accessToken:
                                                             'Bearer ${widget.accessToken}',
                                                       );
-
+                                                      debugPrint(
+                                                          '${appDocDirectory.path}/${e.name}');
                                                       final core = await Flowder
                                                           .download(e.url!,
                                                               downloaderUtils);

@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   dropdown_button2: ^2.0.0
   file_picker: ^5.2.6
+  path_provider: ^2.0.13
   flowder:
     path: ../flowder
 

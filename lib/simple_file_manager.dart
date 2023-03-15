@@ -9,6 +9,7 @@ import 'package:flutter/src/material/dropdown.dart';
 import 'package:flowder/flowder.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'src/simple_file_manager.dart';
 part 'src/file_model.dart';
