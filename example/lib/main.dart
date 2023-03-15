@@ -43,11 +43,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   init() async {
-    // _myData = await  getFilesData(null);
+    _myData = await getFilesData(null);
     setState(() {});
   }
 
-  Future<List<FileModel>?>? _myData;
+  List<FileModel>? _myData;
 
   Future<List<FileModel>?> getFilesData(String? parentId) async {
     print('Getting Files Data');
@@ -99,12 +99,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 onCreateFolderClicked: (String? parentID) {},
                 onBack: (String? value) async {
                   print(value);
-                  _myData = await getFilesData(value);
+                  return await getFilesData(value);
                   setState(() {});
                 },
                 onFolderClicked: (value) async {
-                  _myData = await getFilesData(value!.id);
-                  return _myData;
+                  return await getFilesData(value!.id);
+                  // return _myData;
                 },
                 placeholderFromAssets: 'assets/images/placeholder.png',
               ),
