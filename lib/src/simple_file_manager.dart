@@ -3,8 +3,6 @@ part of simple_file_manager;
 class SimpleFileManager extends StatefulWidget {
   final List<FileModel> filesList;
   final String uploadButton;
-
-  // final String downloadButton;
   final String placeholderFromAssets;
   final void Function(String? parentID)? onCreateFolderClicked;
   final Future<List<FileModel>?>? Function(FileModel? fileModel)?
@@ -12,30 +10,31 @@ class SimpleFileManager extends StatefulWidget {
   final void Function(FileModel? fileModel)? onFileClicked;
   final void Function(FileModel? fileModel)? onItemDownloadClicked;
   final Future<List<FileModel>?>? Function(String? previousParentId)? onBack;
-  final Future<bool> Function(String? previousParentId, Uint8List? pickedFile,
+  final Future<String?> Function(String? currentParentId, Uint8List? pickedFile,
       String? pickedFilePath)? onUpload;
+  final List<String>? allowedExtensionsToPick;
 
   /// if endpoint requires token to download photo
   final String? accessToken;
   final String? downloadText;
   final String? copyURLText;
 
-  const SimpleFileManager(
-      {Key? key,
-      required this.filesList,
-      required this.uploadButton,
-      // required this.downloadButton,
-      required this.placeholderFromAssets,
-      this.onCreateFolderClicked,
-      this.onFolderClicked,
-      this.onFileClicked,
-      this.onItemDownloadClicked,
-      this.onBack,
-      this.onUpload,
-      this.accessToken,
-      this.downloadText,
-      this.copyURLText})
-      : super(key: key);
+  const SimpleFileManager({
+    Key? key,
+    required this.filesList,
+    required this.uploadButton,
+    required this.placeholderFromAssets,
+    this.onCreateFolderClicked,
+    this.onFolderClicked,
+    this.onFileClicked,
+    this.onItemDownloadClicked,
+    this.onBack,
+    this.onUpload,
+    this.accessToken,
+    this.downloadText,
+    this.copyURLText,
+    this.allowedExtensionsToPick,
+  }) : super(key: key);
 
   @override
   _SimpleFileManagerState createState() => _SimpleFileManagerState();
@@ -80,8 +79,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                       _parentIds == null ||
                                               (_parentIds?.isEmpty ?? false)
                                           ? null
-                                          : _parentIds!.last
-                                      );
+                                          : _parentIds!.last);
                                   setState(() {
                                     _loading = false;
                                   });
@@ -97,17 +95,15 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                               FilePickerResult? result =
                                   await FilePicker.platform.pickFiles(
                                       type: FileType.custom,
-                                      allowedExtensions: [
-                                        'xlsx',
-                                        'jpeg',
-                                        'jpg',
-                                        'png',
-                                        'gif'
-                                      ],
+                                      allowedExtensions: widget
+                                              .allowedExtensionsToPick ??
+                                          ['xlsx', 'jpeg', 'jpg', 'png', 'gif'],
                                       withData: true);
                               _loading = true;
-                              setState(() {});
-                              bool? response = await widget.onUpload?.call(
+                              setState(() {
+                                print(_parentIds);
+                              });
+                              String? imageUrl = await widget.onUpload?.call(
                                   _parentIds == null || _parentIds!.length == 0
                                       ? null
                                       : _parentIds?.last,
@@ -117,10 +113,12 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                   result?.files.first.bytes != null
                                       ? result!.files.first.name
                                       : null);
-                              if (response ?? false) {
+                              if (imageUrl != null) {
                                 _futureFiles?.add(FileModel(
                                   name: result!.files.first.name,
                                   type: 'File',
+                                  url: imageUrl,
+                                  thumbnail: imageUrl,
                                   createdTime: DateTime.now(),
                                   fileExtension:
                                       result.files.first.name.split('.').last,
@@ -140,9 +138,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                         ],
                       )),
                   const SizedBox(width: 20),
-                  // ElevatedButton(
-                  //     onPressed: (){},
-                  //     child:  Text(widget.downloadButton)),
                   ElevatedButton(
                       onPressed: !_loading
                           ? () async {
@@ -151,7 +146,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                 context: context,
                                 builder: (context) {
                                   return Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.all(5.0),
                                     child: TextField(
                                       autofocus: true,
                                       decoration: const InputDecoration(
@@ -354,22 +349,28 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                   ),
                                                 )
                                               ],
-                                              customButton:
-                                                  FadeInImage.assetNetwork(
-                                                imageErrorBuilder: (context,
-                                                    error, stackTrace) {
-                                                  return Image.asset(
-                                                      widget
-                                                          .placeholderFromAssets,
-                                                      width: 100,
-                                                      fit: BoxFit.fitHeight);
-                                                },
-                                                width: 100,
-                                                height: 100,
-                                                fit: BoxFit.fitHeight,
-                                                placeholder: widget
-                                                    .placeholderFromAssets,
-                                                image: e.thumbnail!,
+                                              customButton: Container(
+                                                decoration: BoxDecoration(
+                                                    // color: Colors.red,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: FadeInImage.assetNetwork(
+                                                  imageErrorBuilder: (context,
+                                                      error, stackTrace) {
+                                                    return Image.asset(
+                                                        widget
+                                                            .placeholderFromAssets,
+                                                        width: 100,
+                                                        fit: BoxFit.fitHeight);
+                                                  },
+                                                  width: 100,
+                                                  height: 100,
+                                                  fit: BoxFit.fitHeight,
+                                                  placeholder: widget
+                                                      .placeholderFromAssets,
+                                                  image: e.thumbnail!,
+                                                ),
                                               ),
                                             ),
                                           )

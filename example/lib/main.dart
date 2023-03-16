@@ -68,8 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return List<FileModel>.from(json['data'].map((e) => FileModel.fromJson(e)));
   }
 
-  Future<bool> uploadFile(
-      String? folderId, Uint8List pickedFile, String? pickedFileName) async {
+  Future<String> uploadFile(
+      String? folderId, Uint8List? pickedFile, String? pickedFileName) async {
     var request = http.MultipartRequest(
         "POST",
         Uri.parse('https://kafaratplus-api.tecfy'
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     request.files.add(http.MultipartFile.fromBytes(
       'file',
-      pickedFile,
+      pickedFile!,
       filename: pickedFileName,
       contentType: MediaType("image", pickedFileName!.split('.').last),
     ));
@@ -91,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
     request.headers["Content-Type"] = "image/jpg";
     request.fields['path'] = 'img';
     request.fields['type'] = 'File';
+    request.fields['parentId'] = folderId!;
 
     var response = await request.send();
     var data = await response.stream.toBytes();
@@ -98,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var r = json.decode(dataString);
     print(response.statusCode);
     print(r);
-    return response.statusCode == 200 ? true : false;
+    return r['data']['thumbnailUrl'];
   }
 
   @override
@@ -118,11 +119,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 // downloadButton: 'Download',
                 onUpload: (String? parentId, pickedFile,
                     String? pickedFileName) async {
-                  print(pickedFile);
                   print(pickedFileName);
                   print(parentId);
-                  return await uploadFile(
-                      parentId, pickedFile!, pickedFileName);
+                  if (pickedFile != null) {
+                    return await uploadFile(
+                        parentId, pickedFile, pickedFileName);
+                  } else {
+                    return null;
+                  }
                 },
                 onCreateFolderClicked: (String? parentID) {},
                 onBack: (String? value) async {
@@ -135,40 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 placeholderFromAssets: 'assets/images/placeholder.png',
               ),
-            // FutureBuilder(
-            //   future: _myData,
-            //   builder: (context, snapshot) {
-            //     // if(snapshot.connectionState == ConnectionState.waiting){
-            //     //   return Center(child: CircularProgressIndicator(),);
-            //     // }
-            //     // else
-            //       if(snapshot.hasData) {
-            //       return SimpleFileManager(
-            //       filesList: snapshot.data!,
-            //       uploadButton: 'Upload',
-            //       // downloadButton: 'Download',
-            //         onUpdate: (String? parentId){
-            //
-            //         },
-            //       onCreateFolderClicked: (String? parentID){
-            //
-            //       },
-            //         onBack: (String? value){
-            //         print(value);
-            //         _myData = getFilesData(value);
-            //         setState(() {});
-            //         },
-            //         onFolderClicked: (value){
-            //             _myData =  getFilesData(value!.id);
-            //             return _myData;
-            //
-            //             },
-            //       placeholderFromAssets: 'assets/images/placeholder.png',
-            //       );
-            //     } else
-            //       return CircularProgressIndicator();
-            //   },
-            // ),
           ],
         ),
       ),
