@@ -148,9 +148,11 @@ packages:
   flowder:
     dependency: transitive
     description:
-      path: "../../flowder"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "0eccd6d64993cf7f86789de5aadd2c8041082c89"
+      url: "https://github.com/A7MeDG0L0L/flowder.git"
+    source: git
     version: "0.2.0"
   flutter:
     dependency: "direct main"
@@ -178,8 +180,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "51f66decf86eb835dd1422ab5f19898736156983"
-      url: "https://github.com/mahmoudelgharabawi/flutter_file_handler.git"
+      resolved-ref: "61e52aad689fa84bf5e0b1248f2dd71c46c3ef8b"
+      url: "https://github.com/A7MeDG0L0L/flutter_file_handler.git"
     source: git
     version: "0.0.1"
   flutter_lints:
@@ -404,26 +406,10 @@ packages:
     dependency: transitive
     description:
       name: share_plus
-      sha256: f582d5741930f3ad1bf0211d358eddc0508cc346e5b4b248bd1e569c995ebb7a
+      sha256: "8c6892037b1824e2d7e8f59d54b3105932899008642e6372e5079c6939b4b625"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.3"
-  share_plus_linux:
-    dependency: transitive
-    description:
-      name: share_plus_linux
-      sha256: dc32bf9f1151b9864bb86a997c61a487967a08f2e0b4feaa9a10538712224da4
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
-  share_plus_macos:
-    dependency: transitive
-    description:
-      name: share_plus_macos
-      sha256: "44daa946f2845045ecd7abb3569b61cd9a55ae9cc4cbec9895b2067b270697ae"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
+    version: "6.3.1"
   share_plus_platform_interface:
     dependency: transitive
     description:
@@ -432,22 +418,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
-  share_plus_web:
-    dependency: transitive
-    description:
-      name: share_plus_web
-      sha256: eaef05fa8548b372253e772837dd1fbe4ce3aca30ea330765c945d7d4f7c9935
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
-  share_plus_windows:
-    dependency: transitive
-    description:
-      name: share_plus_windows
-      sha256: "3a21515ae7d46988d42130cd53294849e280a5de6ace24bae6912a1bffd757d4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
   simple_file_manager:
     dependency: "direct main"
     description:
@@ -616,10 +586,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: "7ab1e5b646623d6a2537aa59d5d039f90eebef75a7c25e105f6f75de1f7750c3"
+      sha256: "3dedc66ca3c0bef9e6a93c0999aee102556a450afcc1b7bcfeace7a424927d92"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.2"
+    version: "6.1.3"
   url_launcher_linux:
     dependency: transitive
     description:

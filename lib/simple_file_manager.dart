@@ -10,6 +10,7 @@ import 'package:flowder/flowder.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_file_handler/flutter_file_handler.dart';
 
 part 'src/simple_file_manager.dart';
 part 'src/file_model.dart';

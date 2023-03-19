@@ -14,9 +14,9 @@ dependencies:
   file_picker: ^5.2.6
   path_provider: ^2.0.13
   flutter_file_handler:
-    git: https://github.com/mahmoudelgharabawi/flutter_file_handler.git
+    git: https://github.com/A7MeDG0L0L/flutter_file_handler.git
   flowder:
-    path: ../flowder
+    git: https://github.com/A7MeDG0L0L/flowder.git
 
 dev_dependencies:
   flutter_test:

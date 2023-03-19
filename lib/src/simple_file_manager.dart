@@ -204,21 +204,28 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                   _loading = false;
                                   setState(() {});
                                 }
+                                if (e.type == FileManagerTypes.File.name) {
+                                  print('File Clicked');
+                                  print(e.url);
+                                  print(e.name);
+                                  await FileViewUtilis.viewFile(
+                                      UploadData(name: e.name, url: e.url),
+                                      context,
+                                      Colors.green);
+                                }
                               },
                               child: Column(
                                 children: <Widget>[
                                   if (e.type == FileManagerTypes.Folder.name)
-                                    const Icon(Icons.folder,
-                                        color: Colors.blue, size: 100),
+                                    Icon(Icons.folder,
+                                        color: Theme.of(context).primaryColor,
+                                        size: 100),
                                   if (e.type == FileManagerTypes.File.name)
                                     e.thumbnail != null
                                         ? DropdownButtonHideUnderline(
                                             child: DropdownButton2(
                                               openWithLongPress: true,
                                               isExpanded: true,
-                                              onChanged: (v) {},
-                                              onMenuStateChange:
-                                                  (bool value) {},
                                               dropdownStyleData:
                                                   DropdownStyleData(
                                                 width: 160,
