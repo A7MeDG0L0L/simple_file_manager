@@ -178,9 +178,11 @@ packages:
   flutter_file_handler:
     dependency: transitive
     description:
-      path: "../../flutter_file_handler"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "2051721bc648eb127404372cfda98bab8a522f57"
+      url: "https://github.com/A7MeDG0L0L/flutter_file_handler.git"
+    source: git
     version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"

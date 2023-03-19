@@ -376,12 +376,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                   ),
                                                 )
                                               ],
-                                              customButton: Container(
-                                                decoration: BoxDecoration(
-                                                    // color: Colors.red,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
+                                              customButton: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                                 child: FadeInImage.assetNetwork(
                                                   imageErrorBuilder: (context,
                                                       error, stackTrace) {
