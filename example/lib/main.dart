@@ -38,7 +38,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    // getFilesData();
     init();
 
     super.initState();
@@ -51,20 +50,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<FileModel>? _myData;
 
+  /// Get url data using api or anyway you want
   Future<List<FileModel>?> getFilesData(String? parentId) async {
-    print('Getting Files Data');
     var response = await http.get(
-        Uri.parse('https://kafaratplus-api.tecfy'
-            '.co/api/admin/setup/file/tree?parentId=${parentId ?? ''}&skip=0'
+        Uri.parse('yourBaseUrl.api/file/tree?parentId=${parentId ?? ''}&skip=0'
             '&count=0'),
-        headers: {
-          'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODAxMzQyOSwiZXhwIjoxNjc4MDk5ODI5fQ.N9ZwhteDr8ISX56VYpvUOW4_QG1G70mBL98Yu0eS5jg'
-        });
-    print(response.statusCode);
-    print(response.request?.url);
+       );
     Map<String, dynamic> json = jsonDecode(response.body);
-
     return List<FileModel>.from(json['data'].map((e) => FileModel.fromJson(e)));
   }
 
@@ -72,16 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
       String? folderId, Uint8List? pickedFile, String? pickedFileName) async {
     var request = http.MultipartRequest(
         "POST",
-        Uri.parse('https://kafaratplus-api.tecfy'
-            '.co/api/general/storage/folder/file/admin')
-        //     ,headers: {'Authorization': 'Bea'
-        //     'rer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODAxMzQyOSwiZXhwIjoxNjc4MDk5ODI5fQ.N9ZwhteDr8ISX56VYpvUOW4_QG1G70mBL98Yu0eS5jg'},
-        // body:
-        );
-    request.headers['Authorization'] = 'Bea'
-        'rer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMmFkMTE2Yjk4NTJlYTRmYjI5ZTgwNCIsIm5hbWUiOiJ7XCJhclwiOlwi2YXYrdmF2K9cIixcImVuXCI6XCJNb2hhbW1lZFwifSIsInR5cGUiOiJhZG1pbiIsInNlY3VyaXR5R3JvdXBJZCI6IjYzZWUwY2ZlZjc3YzIzZWVlZWExZmQ0MiIsImlhdCI6MTY3ODg3NzU2NCwiZXhwIjoxNjc4OTYzOTY0fQ.ICcIYzGcYNC7NoHLyccmNsSkYJsVdVxN6qRMnLo_ceo';
-
-    request.files.add(http.MultipartFile.fromBytes(
+        Uri.parse('yourBaseUrl.api/storage/folder/file/admin'));
+       request.files.add(http.MultipartFile.fromBytes(
       'file',
       pickedFile!,
       filename: pickedFileName,
@@ -97,8 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var data = await response.stream.toBytes();
     String dataString = utf8.decode(data);
     var r = json.decode(dataString);
-    print(response.statusCode);
-    print(r);
     return r['data']['thumbnailUrl'];
   }
 
@@ -116,11 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
               SimpleFileManager(
                 filesList: _myData!,
                 uploadButtonText: 'Upload',
-                // downloadButton: 'Download',
                 onUpload: (String? parentId, pickedFile,
                     String? pickedFileName) async {
-                  print(pickedFileName);
-                  print(parentId);
                   if (pickedFile != null) {
                     return await uploadFile(
                         parentId, pickedFile, pickedFileName);
@@ -135,7 +114,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onFolderClicked: (value) async {
                   return await getFilesData(value!.id);
-                  // return _myData;
                 },
                 placeholderFromAssets: 'assets/images/placeholder.png',
               ),
