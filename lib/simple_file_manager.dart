@@ -1,6 +1,7 @@
 library simple_file_manager;
 
 import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'dart:convert';

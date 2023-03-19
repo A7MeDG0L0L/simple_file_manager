@@ -113,7 +113,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                             : null,
                         icon: const Icon(Icons.arrow_back)),
                   const Spacer(),
-
                   ElevatedButton(
                       onPressed: !_loading
                           ? () async {
@@ -230,13 +229,10 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                   setState(() {});
                                 }
                                 if (e.type == FileManagerTypes.File.name) {
-                                  print('File Clicked');
-                                  print(e.url);
-                                  print(e.name);
-                                  await FileViewUtilis.viewFile(
+                                  await FileViewUtils.viewFile(
                                       UploadData(name: e.name, url: e.url),
                                       context,
-                                      Colors.green);
+                                      Theme.of(context).primaryColor);
                                 }
                               },
                               child: Column(
@@ -274,9 +270,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                     WidgetsFlutterBinding
                                                         .ensureInitialized();
                                                     try {
-                                                      Directory
-                                                          appDocDirectory =
-                                                          await getApplicationDocumentsDirectory();
+                                                      String? appDocDirectory =
+                                                          await getDownloadPath();
 
                                                       final downloaderUtils =
                                                           DownloaderUtils(
@@ -290,8 +285,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                               'Downloading: $progress');
                                                         },
                                                         file: File(
-                                                            '${appDocDirectory.path}/${e.name}'
-                                                            '.${e.fileExtension}'),
+                                                            '$appDocDirectory'
+                                                            '/${e.name}'),
                                                         progress:
                                                             ProgressImplementation(),
                                                         onDone: () {
@@ -313,7 +308,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                             'Bearer ${widget.accessToken}',
                                                       );
                                                       debugPrint(
-                                                          '${appDocDirectory.path}/${e.name}');
+                                                          '$appDocDirectory/${e.name}');
                                                       final core = await Flowder
                                                           .download(e.url!,
                                                               downloaderUtils);
@@ -429,5 +424,23 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
         ),
       ),
     );
+  }
+
+  Future<String?> getDownloadPath() async {
+    Directory? directory;
+    try {
+      if (!Platform.isAndroid) {
+        directory = await getApplicationDocumentsDirectory();
+      } else {
+        directory = Directory('/storage/emulated/0/Download');
+        // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+        // ignore: avoid_slow_async_io
+        if (!await directory.exists())
+          directory = await getExternalStorageDirectory();
+      }
+    } catch (err, stack) {
+      print("Cannot get download folder path");
+    }
+    return directory?.path;
   }
 }
