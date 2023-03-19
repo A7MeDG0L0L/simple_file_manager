@@ -245,6 +245,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                     e.thumbnail != null
                                         ? DropdownButtonHideUnderline(
                                             child: DropdownButton2(
+                                              onMenuStateChange: (value) {},
+                                              onChanged: (value) {},
                                               openWithLongPress: true,
                                               isExpanded: true,
                                               dropdownStyleData:
@@ -255,7 +257,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         vertical: 6),
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(4),
+                                                  BorderRadius.circular(4),
                                                   color: Theme.of(context)
                                                       .primaryColor,
                                                 ),
@@ -271,47 +273,47 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         .ensureInitialized();
                                                     try {
                                                       String? appDocDirectory =
-                                                          await getDownloadPath();
+                                                      await getDownloadPath();
 
                                                       final downloaderUtils =
-                                                          DownloaderUtils(
+                                                      DownloaderUtils(
                                                         progressCallback:
                                                             (current, total) {
                                                           final progress =
                                                               (current /
-                                                                      total) *
+                                                                  total) *
                                                                   100;
                                                           debugPrint(
                                                               'Downloading: $progress');
                                                         },
                                                         file: File(
                                                             '$appDocDirectory'
-                                                            '/${e.name}'),
+                                                                '/${e.name}'),
                                                         progress:
-                                                            ProgressImplementation(),
+                                                        ProgressImplementation(),
                                                         onDone: () {
                                                           debugPrint(
                                                               'Download done');
                                                           ScaffoldMessenger.of(
-                                                                  context)
+                                                              context)
                                                               .showSnackBar(
-                                                                  const SnackBar(
-                                                            content: Text(
-                                                                'Download '
-                                                                'Completed'),
-                                                            backgroundColor:
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'Download '
+                                                                        'Completed'),
+                                                                backgroundColor:
                                                                 Colors.green,
-                                                          ));
+                                                              ));
                                                         },
                                                         deleteOnCancel: true,
                                                         accessToken:
-                                                            'Bearer ${widget.accessToken}',
+                                                        'Bearer ${widget.accessToken}',
                                                       );
                                                       debugPrint(
                                                           '$appDocDirectory/${e.name}');
                                                       final core = await Flowder
                                                           .download(e.url!,
-                                                              downloaderUtils);
+                                                          downloaderUtils);
                                                     } catch (e, st) {
                                                       debugPrint("$e");
                                                       debugPrint("$st");
@@ -345,14 +347,14 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         ClipboardData(
                                                             text: e.url));
                                                     ScaffoldMessenger.of(
-                                                            context)
+                                                        context)
                                                         .showSnackBar(
-                                                            const SnackBar(
-                                                      content:
+                                                        const SnackBar(
+                                                          content:
                                                           Text('URL Copied'),
-                                                      backgroundColor:
+                                                          backgroundColor:
                                                           Colors.green,
-                                                    ));
+                                                        ));
                                                   },
                                                   value: 'Copy',
                                                   child: Row(
@@ -378,7 +380,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                               ],
                                               customButton: ClipRRect(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 child: FadeInImage.assetNetwork(
                                                   imageErrorBuilder: (context,
                                                       error, stackTrace) {
