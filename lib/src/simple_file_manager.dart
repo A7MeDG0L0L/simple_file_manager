@@ -1,28 +1,53 @@
 part of simple_file_manager;
 
 class SimpleFileManager extends StatefulWidget {
+  /// List of Files that will shown
   final List<FileModel> filesList;
-  final String uploadButton;
+
+  /// Text for upload Button
+  final String? uploadButtonText;
+
+  /// path for your placeholder to load if there is an exception in loading
+  /// image
   final String placeholderFromAssets;
+
+  /// callback for on Create folder button pressed
   final void Function(String? parentID)? onCreateFolderClicked;
+
+  /// callback for any folder pressed
   final Future<List<FileModel>?>? Function(FileModel? fileModel)?
       onFolderClicked;
+
+  /// callback for any file pressed
   final void Function(FileModel? fileModel)? onFileClicked;
+
+  /// callback for on item click download from dropdown menu button
+  /// pressed
   final void Function(FileModel? fileModel)? onItemDownloadClicked;
+
+  /// callback for on Create folder button pressed
   final Future<List<FileModel>?>? Function(String? previousParentId)? onBack;
+
+  /// callback for on Upload button pressed
   final Future<String?> Function(String? currentParentId, Uint8List? pickedFile,
       String? pickedFilePath)? onUpload;
+
+  /// List for allowed Extensions to pick on click upload button
   final List<String>? allowedExtensionsToPick;
 
   /// if endpoint requires token to download photo
   final String? accessToken;
+
+  /// Text for upload Button
   final String? downloadText;
+
+  /// Text for CopyURL Button in dropdown menu when hold to open it on any file.
   final String? copyURLText;
 
   const SimpleFileManager({
     Key? key,
     required this.filesList,
-    required this.uploadButton,
+    this.uploadButtonText,
     required this.placeholderFromAssets,
     this.onCreateFolderClicked,
     this.onFolderClicked,
@@ -134,7 +159,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                           const SizedBox(
                             width: 10,
                           ),
-                          Text(widget.uploadButton),
+                          Text(widget.uploadButtonText ?? 'Upload'),
                         ],
                       )),
                   const SizedBox(width: 20),

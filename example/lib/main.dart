@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (_myData != null)
               SimpleFileManager(
                 filesList: _myData!,
-                uploadButton: 'Upload',
+                uploadButtonText: 'Upload',
                 // downloadButton: 'Download',
                 onUpload: (String? parentId, pickedFile,
                     String? pickedFileName) async {
