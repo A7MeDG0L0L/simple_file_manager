@@ -44,6 +44,9 @@ class SimpleFileManager extends StatefulWidget {
   /// Text for CopyURL Button in dropdown menu when hold to open it on any file.
   final String? copyURLText;
 
+  /// Text for Open Button in dropdown menu when hold to open it on new screen.
+  final String? openText;
+
   const SimpleFileManager({
     Key? key,
     required this.filesList,
@@ -59,6 +62,7 @@ class SimpleFileManager extends StatefulWidget {
     this.downloadText,
     this.copyURLText,
     this.allowedExtensionsToPick,
+    this.openText,
   }) : super(key: key);
 
   @override
@@ -228,6 +232,18 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                   _loading = false;
                                   setState(() {});
                                 }
+                              },
+                              onDoubleTap: () async {
+                                if (e.type == FileManagerTypes.Folder.name) {
+                                  _parentIds ??= [];
+                                  _parentIds?.add(e.id!);
+                                  _loading = true;
+                                  setState(() {});
+                                  _futureFiles =
+                                      await widget.onFolderClicked?.call(e);
+                                  _loading = false;
+                                  setState(() {});
+                                }
                                 if (e.type == FileManagerTypes.File.name) {
                                   await FileViewUtils.viewFile(
                                       UploadData(name: e.name, url: e.url),
@@ -247,7 +263,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                             child: DropdownButton2(
                                               onMenuStateChange: (value) {},
                                               onChanged: (value) {},
-                                              openWithLongPress: true,
                                               isExpanded: true,
                                               dropdownStyleData:
                                                   DropdownStyleData(
@@ -376,7 +391,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                       ),
                                                     ],
                                                   ),
-                                                )
+                                                ),
                                               ],
                                               customButton: ClipRRect(
                                                 borderRadius:
