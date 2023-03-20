@@ -1,5 +1,5 @@
 name: simple_file_manager
-description: Simple File Manager previews your folder and files in simple way.
+description: Simple File Manager preview your folder and files in simple way.
 version: 0.0.1
 homepage:
 
@@ -14,9 +14,9 @@ dependencies:
   file_picker: ^5.2.6
   path_provider: ^2.0.13
   flutter_file_handler:
-    git: https://github.com/A7MeDG0L0L/flutter_file_handler.git
-  flowder:
-    git: https://github.com/A7MeDG0L0L/flowder.git
+    path: ../flutter_file_handler
+#    git: https://github.com/A7MeDG0L0L/flutter_file_handler.git
+  flowder_ex: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -31,7 +31,7 @@ flutter:
 
   # To add assets to your package, add an assets section, like this:
   assets:
-    - images/
+    - assets/images/placeholder.png
 
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages

@@ -145,14 +145,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.6"
-  flowder:
+  flowder_ex:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "0eccd6d64993cf7f86789de5aadd2c8041082c89"
-      url: "https://github.com/A7MeDG0L0L/flowder.git"
-    source: git
+      name: flowder_ex
+      sha256: a58c4b665843d3a37aea63ea7cc44c13744c56ec87bbdfff98b59f75266c29bb
+      url: "https://pub.dev"
+    source: hosted
     version: "0.2.0"
   flutter:
     dependency: "direct main"
@@ -178,11 +177,9 @@ packages:
   flutter_file_handler:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "2051721bc648eb127404372cfda98bab8a522f57"
-      url: "https://github.com/A7MeDG0L0L/flutter_file_handler.git"
-    source: git
+      path: "../../flutter_file_handler"
+      relative: true
+    source: path
     version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"

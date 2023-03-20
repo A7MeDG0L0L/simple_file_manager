@@ -9,7 +9,7 @@ class SimpleFileManager extends StatefulWidget {
 
   /// path for your placeholder to load if there is an exception in loading
   /// image
-  final String? placeholderFromAssets;
+  final String? placeholderPath;
 
   /// callback for on Create folder button pressed
   final void Function(String? parentID)? onCreateFolderClicked;
@@ -51,7 +51,7 @@ class SimpleFileManager extends StatefulWidget {
     Key? key,
     required this.filesList,
     this.uploadButtonText,
-    this.placeholderFromAssets,
+    this.placeholderPath,
     this.onCreateFolderClicked,
     this.onFolderClicked,
     this.onFileClicked,
@@ -431,8 +431,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                           (context, error,
                                                               stackTrace) {
                                                         return Image.asset(
-                                                            widget
-                                                                    .placeholderFromAssets ??
+                                                            widget.placeholderPath ??
                                                                 'packages/sim'
                                                                     'ple_file'
                                                                     '_manager'
@@ -445,7 +444,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                       height: 100,
                                                       fit: BoxFit.fitHeight,
                                                       placeholder: widget
-                                                              .placeholderFromAssets ??
+                                                              .placeholderPath ??
                                                           'packages/sim'
                                                               'ple_file'
                                                               '_manager'
@@ -456,7 +455,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                 ),
                                               )
                                             : Image.asset(
-                                            widget.placeholderFromAssets ??
+                                                widget.placeholderPath ??
                                                     'packages/sim'
                                                         'ple_file'
                                                         '_manager'
