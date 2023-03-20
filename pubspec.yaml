@@ -13,9 +13,7 @@ dependencies:
   dropdown_button2: ^2.0.0
   file_picker: ^5.2.6
   path_provider: ^2.0.13
-  flutter_file_handler:
-    path: ../flutter_file_handler
-#    git: https://github.com/A7MeDG0L0L/flutter_file_handler.git
+  flutter_file_handler: ^0.0.2
   flowder_ex: ^0.2.0
 
 dev_dependencies:
