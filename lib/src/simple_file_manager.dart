@@ -9,7 +9,7 @@ class SimpleFileManager extends StatefulWidget {
 
   /// path for your placeholder to load if there is an exception in loading
   /// image
-  final String placeholderFromAssets;
+  final String? placeholderFromAssets;
 
   /// callback for on Create folder button pressed
   final void Function(String? parentID)? onCreateFolderClicked;
@@ -51,7 +51,7 @@ class SimpleFileManager extends StatefulWidget {
     Key? key,
     required this.filesList,
     this.uploadButtonText,
-    required this.placeholderFromAssets,
+    this.placeholderFromAssets,
     this.onCreateFolderClicked,
     this.onFolderClicked,
     this.onFileClicked,
@@ -85,12 +85,12 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 50),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 80,
+            child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -130,33 +130,31 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                           ['xlsx', 'jpeg', 'jpg', 'png', 'gif'],
                                       withData: true);
                               _loading = true;
-                              setState(() {
-                          print(_parentIds);
-                        });
-                        String? imageUrl = await widget.onUpload?.call(
-                            _parentIds == null || _parentIds!.length == 0
-                                ? null
-                                : _parentIds?.last,
-                            result?.files.first.bytes != null
-                                ? result!.files.first.bytes
-                                : null,
-                            result?.files.first.bytes != null
-                                ? result!.files.first.name
-                                : null);
-                        if (imageUrl != null) {
-                          _futureFiles?.add(FileModel(
-                            name: result!.files.first.name,
-                            type: 'File',
-                            url: imageUrl,
-                            thumbnail: imageUrl,
-                            createdTime: DateTime.now(),
-                            fileExtension:
-                            result.files.first.name.split('.').last,
-                          ));
-                        }
-                        _loading = false;
-                        setState(() {});
-                      }
+                              setState(() {});
+                              String? imageUrl = await widget.onUpload?.call(
+                                  _parentIds == null || _parentIds!.length == 0
+                                      ? null
+                                      : _parentIds?.last,
+                                  result?.files.first.bytes != null
+                                      ? result!.files.first.bytes
+                                      : null,
+                                  result?.files.first.bytes != null
+                                      ? result!.files.first.name
+                                      : null);
+                              if (imageUrl != null) {
+                                _futureFiles?.add(FileModel(
+                                  name: result!.files.first.name,
+                                  type: 'File',
+                                  url: imageUrl,
+                                  thumbnail: imageUrl,
+                                  createdTime: DateTime.now(),
+                                  fileExtension:
+                                      result.files.first.name.split('.').last,
+                                ));
+                              }
+                              _loading = false;
+                              setState(() {});
+                            }
                           : null,
                       child: Row(
                         children: [
@@ -182,27 +180,27 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                     child: TextField(
                                       autofocus: true,
                                       decoration: const InputDecoration(
-                                    hintText: 'Enter Folder name ...'),
-                                onSubmitted: (String? value) {
-                                  folderName = value;
-                                  Navigator.pop(context);
+                                          hintText: 'Enter Folder name ...'),
+                                      onSubmitted: (String? value) {
+                                        folderName = value;
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  );
                                 },
-                              ),
-                            );
-                          },
-                        );
-                        if (folderName != null && folderName != '') {
-                          _futureFiles?.add(FileModel(
-                              type: FileManagerTypes.Folder.name,
-                              name: folderName));
-                          widget.onCreateFolderClicked?.call(
-                              _parentIds == null ||
-                                  (_parentIds?.isEmpty ?? false)
-                                  ? null
-                                  : _parentIds!.last);
-                          setState(() {});
-                        }
-                      }
+                              );
+                              if (folderName != null && folderName != '') {
+                                _futureFiles?.add(FileModel(
+                                    type: FileManagerTypes.Folder.name,
+                                    name: folderName));
+                                widget.onCreateFolderClicked?.call(
+                                    _parentIds == null ||
+                                            (_parentIds?.isEmpty ?? false)
+                                        ? null
+                                        : _parentIds!.last);
+                                setState(() {});
+                              }
+                            }
                           : null,
                       child: Row(
                         children: [
@@ -216,230 +214,259 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                 ],
               ),
             ),
-            if (_futureFiles != null)
-              _loading
+          ),
+          Expanded(
+              child: SingleChildScrollView(
+            child: SizedBox(
+              width: double.infinity,
+              child: _loading
                   ? const Center(child: CircularProgressIndicator.adaptive())
-                  : Wrap(
-                      children: <Widget>[
-                        ..._futureFiles!.map((e) {
-                          return Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: InkWell(
-                              onTap: () async {
-                                if (e.type == FileManagerTypes.Folder.name) {
-                                  _parentIds ??= [];
-                                  _parentIds?.add(e.id!);
-                                  _loading = true;
-                                  setState(() {});
-                                  _futureFiles =
-                                      await widget.onFolderClicked?.call(e);
-                                  _loading = false;
-                                  setState(() {});
-                                }
-                              },
-                              onDoubleTap: () async {
-                                if (e.type == FileManagerTypes.Folder.name) {
-                                  _parentIds ??= [];
-                                  _parentIds?.add(e.id!);
-                                  _loading = true;
-                                  setState(() {});
-                                  _futureFiles =
-                                      await widget.onFolderClicked?.call(e);
-                                  _loading = false;
-                                  setState(() {});
-                                }
-                                if (e.type == FileManagerTypes.File.name) {
-                                  await FileViewUtils.viewFile(
-                                      UploadData(name: e.name, url: e.url),
-                                      context,
-                                      Theme.of(context).primaryColor);
-                                }
-                              },
-                              child: Column(
-                                children: <Widget>[
-                                  if (e.type == FileManagerTypes.Folder.name)
-                                    Icon(Icons.folder,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 100),
-                                  if (e.type == FileManagerTypes.File.name)
-                                    e.thumbnail != null
-                                        ? DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              onMenuStateChange: (value) {},
-                                              onChanged: (value) {},
-                                              isExpanded: true,
-                                              dropdownStyleData:
-                                                  DropdownStyleData(
-                                                width: 160,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 6),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  BorderRadius.circular(4),
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                ),
-                                                elevation: 8,
-                                                offset: const Offset(40, -4),
-                                              ),
-                                              items: [
-                                                DropdownMenuItem(
-                                                  onTap: () async {
-                                                    debugPrint(
-                                                        'download button pressed');
-                                                    WidgetsFlutterBinding
-                                                        .ensureInitialized();
-                                                    try {
-                                                      String? appDocDirectory =
-                                                      await getDownloadPath();
+                  : _futureFiles != null
+                      ? Wrap(
+                          children: <Widget>[
+                            ..._futureFiles!.map((e) {
+                              return Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: InkWell(
+                                  onTap: () async {
+                                    if (e.type ==
+                                        FileManagerTypes.Folder.name) {
+                                      _parentIds ??= [];
+                                      _parentIds?.add(e.id!);
+                                      _loading = true;
+                                      setState(() {});
+                                      _futureFiles =
+                                          await widget.onFolderClicked?.call(e);
+                                      _loading = false;
+                                      setState(() {});
+                                    }
+                                  },
+                                  onDoubleTap: () async {
+                                    if (e.type ==
+                                        FileManagerTypes.Folder.name) {
+                                      _parentIds ??= [];
+                                      _parentIds?.add(e.id!);
+                                      _loading = true;
+                                      setState(() {});
+                                      _futureFiles =
+                                          await widget.onFolderClicked?.call(e);
+                                      _loading = false;
+                                      setState(() {});
+                                    }
+                                    if (e.type == FileManagerTypes.File.name) {
+                                      await FileViewUtils.viewFile(
+                                          UploadData(name: e.name, url: e.url),
+                                          context,
+                                          Theme.of(context).primaryColor);
+                                    }
+                                  },
+                                  child: Column(
+                                    children: <Widget>[
+                                      if (e.type ==
+                                          FileManagerTypes.Folder.name)
+                                        Icon(Icons.folder,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            size: 100),
+                                      if (e.type == FileManagerTypes.File.name)
+                                        e.thumbnail != null
+                                            ? DropdownButtonHideUnderline(
+                                                child: DropdownButton2(
+                                                  onMenuStateChange: (value) {},
+                                                  onChanged: (value) {},
+                                                  isExpanded: true,
+                                                  dropdownStyleData:
+                                                      DropdownStyleData(
+                                                    width: 160,
+                                                    padding: const EdgeInsets
+                                                        .symmetric(vertical: 6),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                    ),
+                                                    elevation: 8,
+                                                    offset:
+                                                        const Offset(40, -4),
+                                                  ),
+                                                  items: [
+                                                    DropdownMenuItem(
+                                                      onTap: () async {
+                                                        debugPrint(
+                                                            'download button pressed');
+                                                        WidgetsFlutterBinding
+                                                            .ensureInitialized();
+                                                        try {
+                                                          String?
+                                                              appDocDirectory =
+                                                              await getDownloadPath();
 
-                                                      final downloaderUtils =
-                                                      DownloaderUtils(
-                                                        progressCallback:
-                                                            (current, total) {
-                                                          final progress =
-                                                              (current /
-                                                                  total) *
-                                                                  100;
-                                                          debugPrint(
-                                                              'Downloading: $progress');
-                                                        },
-                                                        file: File(
-                                                            '$appDocDirectory'
+                                                          final downloaderUtils =
+                                                              DownloaderUtils(
+                                                            progressCallback:
+                                                                (current,
+                                                                    total) {
+                                                              final progress =
+                                                                  (current /
+                                                                          total) *
+                                                                      100;
+                                                              debugPrint(
+                                                                  'Downloading: $progress');
+                                                            },
+                                                            file: File(
+                                                                '$appDocDirectory'
                                                                 '/${e.name}'),
-                                                        progress:
-                                                        ProgressImplementation(),
-                                                        onDone: () {
-                                                          debugPrint(
-                                                              'Download done');
-                                                          ScaffoldMessenger.of(
-                                                              context)
-                                                              .showSnackBar(
-                                                              const SnackBar(
+                                                            progress:
+                                                                ProgressImplementation(),
+                                                            onDone: () {
+                                                              debugPrint(
+                                                                  'Download done');
+                                                              ScaffoldMessenger
+                                                                      .of(
+                                                                          context)
+                                                                  .showSnackBar(
+                                                                      const SnackBar(
                                                                 content: Text(
                                                                     'Download '
-                                                                        'Completed'),
+                                                                    'Completed'),
                                                                 backgroundColor:
-                                                                Colors.green,
+                                                                    Colors
+                                                                        .green,
                                                               ));
-                                                        },
-                                                        deleteOnCancel: true,
-                                                        accessToken:
-                                                        'Bearer ${widget.accessToken}',
-                                                      );
-                                                      debugPrint(
-                                                          '$appDocDirectory/${e.name}');
-                                                      final core = await Flowder
-                                                          .download(e.url!,
-                                                          downloaderUtils);
-                                                    } catch (e, st) {
-                                                      debugPrint("$e");
-                                                      debugPrint("$st");
-                                                    }
-                                                  },
-                                                  value: 'Download',
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.download,
-                                                        color: Colors.white,
-                                                        size: 22,
+                                                            },
+                                                            deleteOnCancel:
+                                                                true,
+                                                            accessToken:
+                                                                'Bearer ${widget.accessToken}',
+                                                          );
+                                                          debugPrint(
+                                                              '$appDocDirectory/${e.name}');
+                                                          final core = await Flowder
+                                                              .download(e.url!,
+                                                                  downloaderUtils);
+                                                        } catch (e, st) {
+                                                          debugPrint("$e");
+                                                          debugPrint("$st");
+                                                        }
+                                                      },
+                                                      value: 'Download',
+                                                      child: Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.download,
+                                                            color: Colors.white,
+                                                            size: 22,
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            widget.downloadText ??
+                                                                ''
+                                                                    'Download',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      const SizedBox(
-                                                        width: 10,
-                                                      ),
-                                                      Text(
-                                                        widget.downloadText ??
-                                                            ''
-                                                                'Download',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                DropdownMenuItem(
-                                                  onTap: () async {
-                                                    await Clipboard.setData(
-                                                        ClipboardData(
-                                                            text: e.url));
-                                                    ScaffoldMessenger.of(
-                                                        context)
-                                                        .showSnackBar(
-                                                        const SnackBar(
-                                                          content:
-                                                          Text('URL Copied'),
+                                                    ),
+                                                    DropdownMenuItem(
+                                                      onTap: () async {
+                                                        await Clipboard.setData(
+                                                            ClipboardData(
+                                                                text: e.url));
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                          content: Text(
+                                                              'URL Copied'),
                                                           backgroundColor:
-                                                          Colors.green,
+                                                              Colors.green,
                                                         ));
-                                                  },
-                                                  value: 'Copy',
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.copy,
-                                                        color: Colors.white,
-                                                        size: 22,
+                                                      },
+                                                      value: 'Copy',
+                                                      child: Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.copy,
+                                                            color: Colors.white,
+                                                            size: 22,
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            widget.copyURLText ??
+                                                                'Copy URL',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      const SizedBox(
-                                                        width: 10,
-                                                      ),
-                                                      Text(
-                                                        widget.copyURLText ??
-                                                            'Copy URL',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                    ),
+                                                  ],
+                                                  customButton: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: FadeInImage
+                                                        .assetNetwork(
+                                                      imageErrorBuilder:
+                                                          (context, error,
+                                                              stackTrace) {
+                                                        return Image.asset(
+                                                            widget.placeholderFromAssets ??
+                                                                'assets/images/placeholder.png',
+                                                            width: 100,
+                                                            fit: BoxFit
+                                                                .fitHeight);
+                                                      },
+                                                      width: 100,
+                                                      height: 100,
+                                                      fit: BoxFit.fitHeight,
+                                                      placeholder: widget
+                                                              .placeholderFromAssets ??
+                                                          'assets/images/placeholder.png',
+                                                      image: e.thumbnail!,
+                                                    ),
                                                   ),
                                                 ),
-                                              ],
-                                              customButton: ClipRRect(
-                                                borderRadius:
-                                                BorderRadius.circular(10),
-                                                child: FadeInImage.assetNetwork(
-                                                  imageErrorBuilder: (context,
-                                                      error, stackTrace) {
-                                                    return Image.asset(
-                                                        widget
-                                                            .placeholderFromAssets,
-                                                        width: 100,
-                                                        fit: BoxFit.fitHeight);
-                                                  },
-                                                  width: 100,
-                                                  height: 100,
-                                                  fit: BoxFit.fitHeight,
-                                                  placeholder: widget
-                                                      .placeholderFromAssets,
-                                                  image: e.thumbnail!,
-                                                ),
-                                              ),
+                                              )
+                                            : Image.asset(
+                                                widget.placeholderFromAssets ??
+                                                    'assets/images/placeholder.png',
+                                                width: 100,
+                                                fit: BoxFit.fitHeight),
+                                      SizedBox(
+                                          width: 100,
+                                          child: Center(
+                                            child: Text(
+                                              e.name ?? '',
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          )
-                                        : Image.asset(
-                                            widget.placeholderFromAssets,
-                                            width: 100,
-                                            fit: BoxFit.fitHeight),
-                                  SizedBox(
-                                      width: 100,
-                                      child: Center(
-                                        child: Text(
-                                          e.name ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      )),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-          ],
-        ),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
+            ),
+          ))
+        ],
       ),
     );
   }

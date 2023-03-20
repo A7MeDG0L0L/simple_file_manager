@@ -53,8 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Get url data using api or anyway you want
   Future<List<FileModel>?> getFilesData(String? parentId) async {
     var response = await http.get(
-        Uri.parse('yourBaseUrl.api/file/tree?parentId=${parentId ?? ''}&skip=0'
-            '&count=0'),
+        Uri.parse(
+          'https://kafaratplus-api.tecfy.co/api/admin/setup/file/tree?parentId=${parentId ?? ''}&skip=0'
+          '&count=0'),
        );
     Map<String, dynamic> json = jsonDecode(response.body);
     return List<FileModel>.from(json['data'].map((e) => FileModel.fromJson(e)));
@@ -87,39 +88,33 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (_myData != null)
-              SimpleFileManager(
-                filesList: _myData!,
-                uploadButtonText: 'Upload',
-                onUpload: (String? parentId, pickedFile,
-                    String? pickedFileName) async {
-                  if (pickedFile != null) {
-                    return await uploadFile(
-                        parentId, pickedFile, pickedFileName);
-                  } else {
-                    return null;
-                  }
-                },
-                onCreateFolderClicked: (String? parentID) {},
-                onBack: (String? value) async {
-                  print(value);
-                  return await getFilesData(value);
-                },
-                onFolderClicked: (value) async {
-                  return await getFilesData(value!.id);
-                },
-                placeholderFromAssets: 'assets/images/placeholder.png',
-              ),
-          ],
-        ),
-      ),
+      body: _myData != null
+          ? SimpleFileManager(
+              filesList: _myData!,
+              uploadButtonText: 'Upload',
+              onUpload:
+                  (String? parentId, pickedFile, String? pickedFileName) async {
+                if (pickedFile != null) {
+                  return await uploadFile(parentId, pickedFile, pickedFileName);
+                } else {
+                  return null;
+                }
+              },
+              onCreateFolderClicked: (String? parentID) {},
+              onBack: (String? value) async {
+                print(value);
+                return await getFilesData(value);
+              },
+              onFolderClicked: (value) async {
+                return await getFilesData(value!.id);
+              },
+              // placeholderFromAssets: 'assets/images/placeholder.png',
+            )
+          : null,
     );
   }
 }
