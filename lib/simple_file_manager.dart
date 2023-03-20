@@ -1,12 +1,10 @@
 library simple_file_manager;
 
 import 'dart:io';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/src/material/dropdown.dart';
 import 'package:flowder_ex/flowder_ex.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';

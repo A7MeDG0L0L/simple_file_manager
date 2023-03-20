@@ -350,7 +350,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                           );
                                                           debugPrint(
                                                               '$appDocDirectory/${e.name}');
-                                                          final core = await Flowder
+                                                           await Flowder
                                                               .download(e.url!,
                                                                   downloaderUtils);
                                                         } catch (e, st) {
@@ -496,11 +496,12 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
         directory = Directory('/storage/emulated/0/Download');
         // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
         // ignore: avoid_slow_async_io
-        if (!await directory.exists())
+        if (!await directory.exists()) {
           directory = await getExternalStorageDirectory();
+        }
       }
-    } catch (err, stack) {
-      print("Cannot get download folder path");
+    } catch (err) {
+      debugPrint("Cannot get download folder path");
     }
     return directory?.path;
   }
