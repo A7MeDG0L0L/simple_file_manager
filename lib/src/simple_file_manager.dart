@@ -44,8 +44,8 @@ class SimpleFileManager extends StatefulWidget {
   /// Text for CopyURL Button in dropdown menu when hold to open it on any file.
   final String? copyURLText;
 
-  /// Text for Open Button in dropdown menu when hold to open it on new screen.
-  final String? openText;
+  /// Text for Create folder Button.
+  final String? createFolderText;
 
   const SimpleFileManager({
     Key? key,
@@ -62,7 +62,7 @@ class SimpleFileManager extends StatefulWidget {
     this.downloadText,
     this.copyURLText,
     this.allowedExtensionsToPick,
-    this.openText,
+    this.createFolderText,
   }) : super(key: key);
 
   @override
@@ -118,6 +118,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                         icon: const Icon(Icons.arrow_back)),
                   const Spacer(),
                   ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor),
                       onPressed: !_loading
                           ? () async {
                               FilePickerResult? result =
@@ -129,32 +131,32 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                       withData: true);
                               _loading = true;
                               setState(() {
-                                print(_parentIds);
-                              });
-                              String? imageUrl = await widget.onUpload?.call(
-                                  _parentIds == null || _parentIds!.length == 0
-                                      ? null
-                                      : _parentIds?.last,
-                                  result?.files.first.bytes != null
-                                      ? result!.files.first.bytes
-                                      : null,
-                                  result?.files.first.bytes != null
-                                      ? result!.files.first.name
-                                      : null);
-                              if (imageUrl != null) {
-                                _futureFiles?.add(FileModel(
-                                  name: result!.files.first.name,
-                                  type: 'File',
-                                  url: imageUrl,
-                                  thumbnail: imageUrl,
-                                  createdTime: DateTime.now(),
-                                  fileExtension:
-                                      result.files.first.name.split('.').last,
-                                ));
-                              }
-                              _loading = false;
-                              setState(() {});
-                            }
+                          print(_parentIds);
+                        });
+                        String? imageUrl = await widget.onUpload?.call(
+                            _parentIds == null || _parentIds!.length == 0
+                                ? null
+                                : _parentIds?.last,
+                            result?.files.first.bytes != null
+                                ? result!.files.first.bytes
+                                : null,
+                            result?.files.first.bytes != null
+                                ? result!.files.first.name
+                                : null);
+                        if (imageUrl != null) {
+                          _futureFiles?.add(FileModel(
+                            name: result!.files.first.name,
+                            type: 'File',
+                            url: imageUrl,
+                            thumbnail: imageUrl,
+                            createdTime: DateTime.now(),
+                            fileExtension:
+                            result.files.first.name.split('.').last,
+                          ));
+                        }
+                        _loading = false;
+                        setState(() {});
+                      }
                           : null,
                       child: Row(
                         children: [
@@ -167,6 +169,8 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                       )),
                   const SizedBox(width: 20),
                   ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor),
                       onPressed: !_loading
                           ? () async {
                               String? folderName;
@@ -178,35 +182,35 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                     child: TextField(
                                       autofocus: true,
                                       decoration: const InputDecoration(
-                                          hintText: 'Enter Folder name ...'),
-                                      onSubmitted: (String? value) {
-                                        folderName = value;
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  );
+                                    hintText: 'Enter Folder name ...'),
+                                onSubmitted: (String? value) {
+                                  folderName = value;
+                                  Navigator.pop(context);
                                 },
-                              );
-                              if (folderName != null && folderName != '') {
-                                _futureFiles?.add(FileModel(
-                                    type: FileManagerTypes.Folder.name,
-                                    name: folderName));
-                                widget.onCreateFolderClicked?.call(
-                                    _parentIds == null ||
-                                            (_parentIds?.isEmpty ?? false)
-                                        ? null
-                                        : _parentIds!.last);
-                                setState(() {});
-                              }
-                            }
+                              ),
+                            );
+                          },
+                        );
+                        if (folderName != null && folderName != '') {
+                          _futureFiles?.add(FileModel(
+                              type: FileManagerTypes.Folder.name,
+                              name: folderName));
+                          widget.onCreateFolderClicked?.call(
+                              _parentIds == null ||
+                                  (_parentIds?.isEmpty ?? false)
+                                  ? null
+                                  : _parentIds!.last);
+                          setState(() {});
+                        }
+                      }
                           : null,
                       child: Row(
-                        children: const [
-                          Icon(Icons.create_new_folder),
-                          SizedBox(
+                        children: [
+                          const Icon(Icons.create_new_folder),
+                          const SizedBox(
                             width: 10,
                           ),
-                          Text('Create Folder'),
+                          Text(widget.createFolderText ?? 'Create Folder'),
                         ],
                       )),
                 ],
