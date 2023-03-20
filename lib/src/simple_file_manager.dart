@@ -78,9 +78,16 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
   @override
   void initState() {
     _futureFiles = widget.filesList;
-
+// init();
     super.initState();
   }
+
+  //  init()async{
+  // var value =    await rootBundle
+  //        .loadString('packages/simple_file_manager/assets/images'
+  //        '/placeholder.png');
+  // print(value);
+  //  }
 
   @override
   Widget build(BuildContext context) {
@@ -424,8 +431,12 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                           (context, error,
                                                               stackTrace) {
                                                         return Image.asset(
-                                                            widget.placeholderFromAssets ??
-                                                                'assets/images/placeholder.png',
+                                                            widget
+                                                                    .placeholderFromAssets ??
+                                                                'packages/sim'
+                                                                    'ple_file'
+                                                                    '_manager'
+                                                                    '/assets/images/placeholder.png',
                                                             width: 100,
                                                             fit: BoxFit
                                                                 .fitHeight);
@@ -435,15 +446,21 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                       fit: BoxFit.fitHeight,
                                                       placeholder: widget
                                                               .placeholderFromAssets ??
-                                                          'assets/images/placeholder.png',
+                                                          'packages/sim'
+                                                              'ple_file'
+                                                              '_manager'
+                                                              '/assets/images/placeholder.png',
                                                       image: e.thumbnail!,
                                                     ),
                                                   ),
                                                 ),
                                               )
                                             : Image.asset(
-                                                widget.placeholderFromAssets ??
-                                                    'assets/images/placeholder.png',
+                                            widget.placeholderFromAssets ??
+                                                    'packages/sim'
+                                                        'ple_file'
+                                                        '_manager'
+                                                        '/assets/images/placeholder.png',
                                                 width: 100,
                                                 fit: BoxFit.fitHeight),
                                       SizedBox(
