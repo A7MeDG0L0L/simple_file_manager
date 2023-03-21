@@ -1,6 +1,6 @@
 name: simple_file_manager
 description: Simple File Manager preview your folder and files in simple way.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/A7MeDG0L0L/simple_file_manager
 
 environment:
