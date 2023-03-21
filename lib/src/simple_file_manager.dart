@@ -12,7 +12,8 @@ class SimpleFileManager extends StatefulWidget {
   final String? placeholderPath;
 
   /// callback for on Create folder button pressed
-  final void Function(String? parentID)? onCreateFolderClicked;
+  final Future<String?> Function(String? parentID, String? folderName)?
+      onCreateFolderClicked;
 
   /// callback for any folder pressed
   final Future<List<FileModel>?>? Function(FileModel? fileModel)?
@@ -132,9 +133,16 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                               FilePickerResult? result =
                                   await FilePicker.platform.pickFiles(
                                       type: FileType.custom,
-                                      allowedExtensions: widget
-                                              .allowedExtensionsToPick ??
-                                          ['xlsx', 'jpeg', 'jpg', 'png', 'gif'],
+                                      allowedExtensions:
+                                          widget.allowedExtensionsToPick ??
+                                              [
+                                                'xlsx',
+                                                'jpeg',
+                                                'jpg',
+                                                'png',
+                                                'gif',
+                                                'pdf'
+                                              ],
                                       withData: true);
                               _loading = true;
                               setState(() {});
@@ -197,15 +205,23 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                 },
                               );
                               if (folderName != null && folderName != '') {
-                                _futureFiles?.add(FileModel(
-                                    type: FileManagerTypes.Folder.name,
-                                    name: folderName));
-                                widget.onCreateFolderClicked?.call(
-                                    _parentIds == null ||
-                                            (_parentIds?.isEmpty ?? false)
-                                        ? null
-                                        : _parentIds!.last);
-                                setState(() {});
+                                String? folderID =
+                                    await widget.onCreateFolderClicked?.call(
+                                        _parentIds == null ||
+                                                (_parentIds?.isEmpty ?? false)
+                                            ? null
+                                            : _parentIds!.last,
+                                        folderName);
+                                setState(() {
+                                  if (folderID != null) {
+                                    _futureFiles?.add(FileModel(
+                                        id: folderID,
+                                        // parent: Parent(id: _parentIds?.last),
+                                        type: FileManagerTypes.Folder.name,
+                                        name: folderName));
+                                    print(_futureFiles?.last.toJson());
+                                  }
+                                });
                               }
                             }
                           : null,
