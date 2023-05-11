@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List<FileModel>?> getFilesData(String? parentId) async {
     var response = await http.get(
         Uri.parse(
-          'https://kafaratplus-api.tecfy.co/api/admin/setup/file/tree?parentId=${parentId ?? ''}&skip=0'
+          'yourBaseUrl.api/file/tree?parentId=${parentId ?? ''}&skip=0'
           '&count=0'),
        );
     Map<String, dynamic> json = jsonDecode(response.body);
@@ -94,12 +94,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _myData != null
           ? SimpleFileManager(
-              filesList: _myData!,
+        filesList: _myData!,
               uploadButtonText: 'Upload',
-              onUpload:
-                  (String? parentId, pickedFile, String? pickedFileName) async {
-                if (pickedFile != null) {
-                  return await uploadFile(parentId, pickedFile, pickedFileName);
+              onUpload: (String? parentId, pickedFiles, pickedFileNames) async {
+                if (pickedFiles != null) {
+                  List<String> urlList = [];
+                  for (int x = 0; x < pickedFiles.length; x++) {
+                    urlList.add(await uploadFile(
+                        parentId, pickedFiles[x], pickedFileNames?[x]));
+                  }
                 } else {
                   return null;
                 }

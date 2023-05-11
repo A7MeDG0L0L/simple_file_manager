@@ -7,6 +7,8 @@ class SimpleFileManager extends StatefulWidget {
   /// Text for upload Button
   final String? uploadButtonText;
 
+  final bool isWithUploadAndDownloadButtons;
+
   /// path for your placeholder to load if there is an exception in loading
   /// image
   final String? placeholderPath;
@@ -30,8 +32,8 @@ class SimpleFileManager extends StatefulWidget {
   final Future<List<FileModel>?>? Function(String? previousParentId)? onBack;
 
   /// callback for on Upload button pressed
-  final Future<String?> Function(String? currentParentId, Uint8List? pickedFile,
-      String? pickedFilePath)? onUpload;
+  final Future<List<String?>?>? Function(String? currentParentId,
+      List<Uint8List?>? pickedFiles, List<String?>? pickedFilePaths)? onUpload;
 
   /// List for allowed Extensions to pick on click upload button
   final List<String>? allowedExtensionsToPick;
@@ -47,6 +49,10 @@ class SimpleFileManager extends StatefulWidget {
 
   /// Text for Create folder Button.
   final String? createFolderText;
+
+  final List<DropdownMenuItem<String>>? dropdownItems;
+
+  final Function(FileModel)? onItemSelected;
 
   const SimpleFileManager({
     Key? key,
@@ -64,6 +70,9 @@ class SimpleFileManager extends StatefulWidget {
     this.copyURLText,
     this.allowedExtensionsToPick,
     this.createFolderText,
+    this.isWithUploadAndDownloadButtons = true,
+    this.dropdownItems,
+    this.onItemSelected,
   }) : super(key: key);
 
   @override
@@ -79,7 +88,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
   @override
   void initState() {
     _futureFiles = widget.filesList;
-// init();
+
     super.initState();
   }
 
@@ -125,115 +134,138 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                             : null,
                         icon: const Icon(Icons.arrow_back)),
                   const Spacer(),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor),
-                      onPressed: !_loading
-                          ? () async {
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles(
-                                      type: FileType.custom,
-                                      allowedExtensions:
-                                          widget.allowedExtensionsToPick ??
-                                              [
-                                                'xlsx',
-                                                'jpeg',
-                                                'jpg',
-                                                'png',
-                                                'gif',
-                                                'pdf'
-                                              ],
-                                      withData: true);
-                              _loading = true;
-                              setState(() {});
-                              String? imageUrl = await widget.onUpload?.call(
-                                  _parentIds == null || _parentIds!.length == 0
-                                      ? null
-                                      : _parentIds?.last,
-                                  result?.files.first.bytes != null
-                                      ? result!.files.first.bytes
-                                      : null,
-                                  result?.files.first.bytes != null
-                                      ? result!.files.first.name
-                                      : null);
-                              if (imageUrl != null) {
-                                _futureFiles?.add(FileModel(
-                                  name: result!.files.first.name,
-                                  type: 'File',
-                                  url: imageUrl,
-                                  thumbnail: imageUrl,
-                                  createdTime: DateTime.now(),
-                                  fileExtension:
-                                      result.files.first.name.split('.').last,
-                                ));
-                              }
-                              _loading = false;
-                              setState(() {});
-                            }
-                          : null,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.upload),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(widget.uploadButtonText ?? 'Upload'),
-                        ],
-                      )),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor),
-                      onPressed: !_loading
-                          ? () async {
-                              String? folderName;
-                              await showModalBottomSheet(
-                                context: context,
-                                builder: (context) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: TextField(
-                                      autofocus: true,
-                                      decoration: const InputDecoration(
-                                          hintText: 'Enter Folder name ...'),
-                                      onSubmitted: (String? value) {
-                                        folderName = value;
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  );
-                                },
-                              );
-                              if (folderName != null && folderName != '') {
-                                String? folderID =
-                                    await widget.onCreateFolderClicked?.call(
-                                        _parentIds == null ||
-                                                (_parentIds?.isEmpty ?? false)
-                                            ? null
-                                            : _parentIds!.last,
-                                        folderName);
-                                setState(() {
-                                  if (folderID != null) {
-                                    _futureFiles?.add(FileModel(
-                                        id: folderID,
-                                        // parent: Parent(id: _parentIds?.last),
-                                        type: FileManagerTypes.Folder.name,
-                                        name: folderName));
-                                    print(_futureFiles?.last.toJson());
+                  if (widget.isWithUploadAndDownloadButtons)
+                    Row(
+                      children: [
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).primaryColor),
+                            onPressed: !_loading
+                                ? () async {
+                                    FilePickerResult? result =
+                                        await FilePicker.platform.pickFiles(
+                                            type: FileType.custom,
+                                            allowedExtensions: widget
+                                                    .allowedExtensionsToPick ??
+                                                [
+                                                  'xlsx',
+                                                  'jpeg',
+                                                  'jpg',
+                                                  'png',
+                                                  'gif',
+                                                  'pdf'
+                                                ],
+                                            withData: true,
+                                            allowMultiple: true);
+                                    _loading = true;
+                                    setState(() {});
+                                    List<String?>? imageUrls =
+                                        await widget.onUpload?.call(
+                                            _parentIds == null ||
+                                                    _parentIds!.length == 0
+                                                ? null
+                                                : _parentIds?.last,
+                                            result?.files.first.bytes != null
+                                                ? result!.files
+                                                    .map((e) => e.bytes)
+                                                    .toList()
+                                                : null,
+                                            result?.files.first.bytes != null
+                                                ? result!.files
+                                                    .map((e) => e.name)
+                                                    .toList()
+                                                : null);
+                                    if (imageUrls != null) {
+                                      for (String? imageUrl in imageUrls) {
+                                        _futureFiles?.add(FileModel(
+                                          name: result!.files.first.name,
+                                          type: 'File',
+                                          url: imageUrl,
+                                          thumbnail: imageUrl,
+                                          createdTime: DateTime.now(),
+                                          fileExtension: result.files.first.name
+                                              .split('.')
+                                              .last,
+                                        ));
+                                      }
+                                    }
+                                    _loading = false;
+                                    setState(() {});
                                   }
-                                });
-                              }
-                            }
-                          : null,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.create_new_folder),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(widget.createFolderText ?? 'Create Folder'),
-                        ],
-                      )),
+                                : null,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.upload),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(widget.uploadButtonText ?? 'Upload'),
+                              ],
+                            )),
+                        const SizedBox(width: 20),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).primaryColor),
+                            onPressed: !_loading
+                                ? () async {
+                                    String? folderName;
+                                    await showModalBottomSheet(
+                                      context: context,
+                                      builder: (context) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: TextField(
+                                            autofocus: true,
+                                            decoration: const InputDecoration(
+                                                hintText:
+                                                    'Enter Folder name ...'),
+                                            onSubmitted: (String? value) {
+                                              folderName = value;
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    );
+                                    if (folderName != null &&
+                                        folderName != '') {
+                                      String? folderID = await widget
+                                          .onCreateFolderClicked
+                                          ?.call(
+                                              _parentIds == null ||
+                                                      (_parentIds?.isEmpty ??
+                                                          false)
+                                                  ? null
+                                                  : _parentIds!.last,
+                                              folderName);
+                                      setState(() {
+                                        if (folderID != null) {
+                                          _futureFiles?.add(FileModel(
+                                              id: folderID,
+                                              // parent: Parent(id: _parentIds?.last),
+                                              type:
+                                                  FileManagerTypes.Folder.name,
+                                              name: folderName));
+                                          print(_futureFiles?.last.toJson());
+                                        }
+                                      });
+                                    }
+                                  }
+                                : null,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.create_new_folder),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                    widget.createFolderText ?? 'Create Folder'),
+                              ],
+                            )),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -294,9 +326,14 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                       if (e.type == FileManagerTypes.File.name)
                                         e.thumbnail != null
                                             ? DropdownButtonHideUnderline(
-                                                child: DropdownButton2(
+                                                child: DropdownButton2<String>(
                                                   onMenuStateChange: (value) {},
-                                                  onChanged: (value) {},
+                                                  onChanged:
+                                                      (String? selectedItem) {
+                                                    if (selectedItem != null)
+                                                      widget.onItemSelected
+                                                          ?.call(e);
+                                                  },
                                                   isExpanded: true,
                                                   dropdownStyleData:
                                                       DropdownStyleData(
@@ -315,6 +352,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                         const Offset(40, -4),
                                                   ),
                                                   items: [
+                                                    ...?widget.dropdownItems,
                                                     DropdownMenuItem(
                                                       onTap: () async {
                                                         debugPrint(
@@ -366,9 +404,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                           );
                                                           debugPrint(
                                                               '$appDocDirectory/${e.name}');
-                                                           await Flowder
-                                                              .download(e.url!,
-                                                                  downloaderUtils);
+                                                          await Flowder.download(
+                                                              e.url!,
+                                                              downloaderUtils);
                                                         } catch (e, st) {
                                                           debugPrint("$e");
                                                           debugPrint("$st");
