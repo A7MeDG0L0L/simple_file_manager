@@ -79,12 +79,16 @@ class Parent {
 
   factory Parent.fromJson(Map<String, dynamic> json) => Parent(
     id: json["_id"],
-    name: json["name"],
-    parent: json["parent"],
-    type: json["type"],
-    createdTime: json["createdTime"] == null ? null : DateTime.parse(json["createdTime"]),
-    updatedTime: json["updatedTime"] == null ? null : DateTime.parse(json["updatedTime"]),
-  );
+        name: json["name"],
+        parent: json["parent"] == null ? null : Parent.fromJson(json["parent"]),
+        type: json["type"],
+        createdTime: json["createdTime"] == null
+            ? null
+            : DateTime.parse(json["createdTime"]),
+        updatedTime: json["updatedTime"] == null
+            ? null
+            : DateTime.parse(json["updatedTime"]),
+      );
 
   Map<String, dynamic> toJson() => {
     "_id": id,

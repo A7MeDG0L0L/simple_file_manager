@@ -14,3 +14,5 @@ import 'package:flutter_file_handler/flutter_file_handler.dart';
 part 'src/simple_file_manager.dart';
 part 'src/file_model.dart';
 part 'src/file_manager_types.dart';
+
+part 'src/checkbox_stack_widget.dart';

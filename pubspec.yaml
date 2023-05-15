@@ -1,6 +1,6 @@
 name: simple_file_manager
 description: Simple File Manager preview your folder and files in simple way.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/A7MeDG0L0L/simple_file_manager
 
 environment:
@@ -10,11 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dropdown_button2: ^2.0.0
-  file_picker: ^5.2.6
-  path_provider: ^2.0.13
-  flutter_file_handler: ^0.0.2
-  flowder_ex: ^0.2.0
+  dropdown_button2: ^2.1.2
+  file_picker: ^5.3.0
+  path_provider: ^2.0.15
+  flutter_file_handler: ^0.0.4
+  flowder_ex: ^0.2.2
 
 dev_dependencies:
   flutter_test:
