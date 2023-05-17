@@ -55,7 +55,7 @@ class SimpleFileManager extends StatefulWidget {
 
   final List<DropdownMenuItem<String>>? dropdownItems;
 
-  final Function(FileModel)? onItemSelected;
+  final Function(List<FileModel>)? onItemSelected;
 
   final Future<bool> Function(List<String>)? onDeleteClicked;
 
@@ -93,7 +93,7 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
   List<String>? _parentIds;
   List<FileModel>? _futureFiles;
 
-  List<String>? _deletedIds;
+  List<FileModel>? _deletedIds;
 
   bool _loading = false;
 
@@ -256,7 +256,6 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                                 type: FileManagerTypes
                                                     .Folder.name,
                                                 name: folderName));
-                                            print(_futureFiles?.last.toJson());
                                           }
                                         });
                                       }
@@ -287,7 +286,9 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                           setState(() {});
                                           bool? isDeleted = await widget
                                               .onDeleteClicked
-                                              ?.call(_deletedIds!);
+                                              ?.call(_deletedIds!
+                                                  .map((e) => e.id!)
+                                                  .toList());
                                           if (isDeleted ?? false) {
                                             _futureFiles?.removeWhere(
                                                 (element) => _deletedIds!.any(
@@ -352,16 +353,20 @@ class _SimpleFileManagerState extends State<SimpleFileManager> {
                                   return;
                                 },
                                 onItemSelected: (p0) {
-                                  widget.onItemSelected?.call(p0);
+                                  widget.onItemSelected
+                                      ?.call(List.generate(1, (index) => p0));
                                 },
                                 onItemSelectedForDelete: (file, checked) {
                                   _deletedIds ??= [];
                                   if (checked) {
-                                    _deletedIds?.add(file.id!);
+                                    _deletedIds?.add(file);
                                   } else {
-                                    _deletedIds?.remove(file.id!);
+                                    _deletedIds?.remove(file);
                                   }
-                                  setState(() {});
+                                  setState(() {
+                                    widget.onItemSelected
+                                        ?.call(_deletedIds ?? []);
+                                  });
                                 },
                               );
                             }),

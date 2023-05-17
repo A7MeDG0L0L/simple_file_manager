@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     request.headers["Content-Type"] = "image/jpg";
     request.fields['path'] = 'img';
     request.fields['type'] = 'File';
-    if (folderId != null) request.fields['parentId'] = folderId!;
+    if (folderId != null) request.fields['parentId'] = folderId;
 
     var response = await request.send();
     var data = await response.stream.toBytes();
